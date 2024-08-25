@@ -16,7 +16,7 @@ This is a simple **First Person Controller for Unity** project, this controller 
   - Move: WASD/Arrow Keys
   - Look Around: Mouse Movement
   - Jump: Spacebar
-  - Left Shift: Run
+  - Run: Left Shift
 
 - **Mobile Controls:**
   - Touch and drag to look around.
