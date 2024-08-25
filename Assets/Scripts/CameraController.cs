@@ -13,17 +13,28 @@ public class CameraController : MonoBehaviour
     {
         controls = GetComponent<Controls>();     
     }
-       
-    void Update()
+ 
+    private void LateUpdate()   
     {
-        cameraRotate.x = controls.mouseMovementX * xSpeed * Time.fixedDeltaTime;
-        cameraRotate.y = controls.mouseMovementY * ySpeed * Time.fixedDeltaTime;  
-        cameraRotate.y = Mathf.Clamp(cameraRotate.y, -clampLookY, clampLookY);  
-    }
+#if UNITY_ANDROID
+        float deltaTimeMultiplier = 0.006f;
+#else
+        float deltaTimeMultiplier = 0.03f; 
+#endif
 
-    private void FixedUpdate()
-    {
+        cameraRotate.x = controls.mouseMovementX * xSpeed * deltaTimeMultiplier;
+        cameraRotate.y = controls.mouseMovementY * ySpeed * deltaTimeMultiplier;
+        cameraRotate.y = ClampAngle(cameraRotate.y, -clampLookY, clampLookY);
+
         transform.rotation = Quaternion.Euler(0, cameraRotate.x, 0);
         cameraTransform.localRotation = Quaternion.Euler(cameraRotate.y, 0, 0);
     }
+
+    private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
+    {
+        if (lfAngle < -360f) lfAngle += 360f;
+        if (lfAngle > 360f) lfAngle -= 360f;
+        return Mathf.Clamp(lfAngle, lfMin, lfMax);
+    }
 }
+ 

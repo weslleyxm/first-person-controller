@@ -4,44 +4,54 @@ public class FirstPersonController : MonoBehaviour
 {
     [SerializeField] private float movemetVelocity = 2;
     [SerializeField] private float sprinterVelocity = 6;
-    [SerializeField] private float jumpStrength = 5;
+    [SerializeField] private float jumpHeight = 5;
     [SerializeField] private float groundCheckRadius;
     [SerializeField] private LayerMask groundMask;
-    private Rigidbody rbody;
+    private CharacterController characterController;
     private float currentVelocity;
     private Controls controls;
     private bool isGrounded;
+    private float verticalVelocity;
+    public float gravity = -15.0f;
 
-    void Start()
+    private void Start()
     {
         controls = GetComponent<Controls>();
-        rbody = GetComponent<Rigidbody>();
+        characterController = GetComponent<CharacterController>();
         currentVelocity = movemetVelocity;
-    } 
+    }
 
-    void Update()
-    { 
-        isGrounded = IsGrounded();
-    } 
-
-    private void FixedUpdate()
+    private void Update()
     {
+        isGrounded = IsGrounded();
+
         PerformaceMovement();
+        Gravity();
     }
 
     public void PerformaceMovement()
     {
         currentVelocity = Mathf.Lerp(currentVelocity, controls.sprinter ? sprinterVelocity : movemetVelocity, 5 * Time.deltaTime);
-        if (!isGrounded) currentVelocity = movemetVelocity; 
-
+        if (!isGrounded) currentVelocity = movemetVelocity;
         Vector3 moveDirection = (transform.forward * controls.vertical + transform.right * controls.horizontal).normalized;
-        Vector3 velocity = moveDirection * currentVelocity * 100 * Time.fixedDeltaTime;
-        velocity.y = rbody.velocity.y;
-        rbody.velocity = velocity; 
+        characterController.Move(moveDirection * (currentVelocity * Time.deltaTime) + new Vector3(0.0f, verticalVelocity, 0.0f) * Time.deltaTime);
+    }
 
-        if (isGrounded && controls.jump)
+    private void Gravity()
+    {
+        if (isGrounded)
         {
-            rbody.AddForce(new Vector3(0, jumpStrength, 0), ForceMode.Impulse);
+            if (verticalVelocity < 0.0f)
+            {
+                verticalVelocity = -2f;
+            }
+
+            if (controls.jump)
+                verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
+        }
+        else
+        {
+            verticalVelocity += gravity * Time.deltaTime;
         }
     }
 
@@ -50,7 +60,7 @@ public class FirstPersonController : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, groundCheckRadius);
     }
 
-    public bool IsGrounded()
+    private bool IsGrounded()
     {
         return Physics.CheckSphere(transform.position, groundCheckRadius, groundMask);
     }

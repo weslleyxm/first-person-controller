@@ -15,38 +15,14 @@ public class Controls : MonoBehaviour
     { 
         sprinter = Input.GetKey(KeyCode.LeftShift) && vertical > 0 || mobileInputs.sprinter && vertical > 0;
         jump = Input.GetKey(KeyCode.Space) || mobileInputs.jump;
-          
-        if (mobileInputs)
-        {
-            if (mobileInputs.joystick)
-            {
-                if (mobileInputs.joystick.isDragging)
-                {
-                    UpdateJoystick();
-                }
-                else
-                {
-                    UpdateKeyboard(); 
-                }
-            }
-            else
-            {
-                UpdateKeyboard();
-            }
 
-            if (mobileInputs.IsTouchingArea())
-            {
-                UpdateTouch();
-            }
-            else
-            {
-                UpdateMouse();
-            }
-        }
-        else
-        {
-            UpdateKeyboard();
-        }
+#if UNITY_ANDROID
+        UpdateJoystick();
+        UpdateTouch();
+#else
+        UpdateMouse();
+        UpdateKeyboard();
+#endif 
     }
 
     public void UpdateMouse()
